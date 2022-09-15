@@ -18,14 +18,18 @@ spec:
       containers:
       - name: managedcluster-admission
         image: quay.io/open-cluster-management/registration:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         args:
           - "/registration"
           - "webhook"
-          - "--cert-dir=/tmp"
           - "--secure-port=6443"
+          - --tls-cert-file=/var/run/managedcluster-admission/tls.crt
+          - --tls-private-key-file=/var/run/managedcluster-admission/tls.key
           # webhook is not hosting any k8s api resource, so it is not subjected to APF feature
           - "--feature-gates=DefaultClusterSet=true,APIPriorityAndFairness=false"
+        volumeMounts:
+          - mountPath: /var/run/managedcluster-admission
+            name: webhook-cert
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -33,3 +37,8 @@ spec:
               - ALL
           privileged: false
           runAsNonRoot: true
+      volumes:
+        - name: webhook-cert
+          secret:
+            defaultMode: 420
+            secretName: managedcluster-admission

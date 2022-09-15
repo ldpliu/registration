@@ -1,0 +1,351 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: managedclustersets.cluster.open-cluster-management.io
+spec:
+  group: cluster.open-cluster-management.io
+  names:
+    kind: ManagedClusterSet
+    listKind: ManagedClusterSetList
+    plural: managedclustersets
+    shortNames:
+      - mclset
+      - mclsets
+    singular: managedclusterset
+  scope: Cluster
+  preserveUnknownFields: false
+  versions:
+    - name: v1alpha1
+      deprecated: true
+      deprecationWarning: "cluster.open-cluster-management.io/v1alpha1 ManagedClusterSet is deprecated; use cluster.open-cluster-management.io/v1beta2 ManagedClusterSet"
+      served: true
+      storage: false
+      subresources:
+        status: {}
+      "schema":
+        "openAPIV3Schema":
+          description: "ManagedClusterSet defines a group of ManagedClusters that user's workload can run on. A workload can be defined to deployed on a ManagedClusterSet, which mean:   1. The workload can run on any ManagedCluster in the ManagedClusterSet   2. The workload cannot run on any ManagedCluster outside the ManagedClusterSet   3. The service exposed by the workload can be shared in any ManagedCluster in the ManagedClusterSet \n In order to assign a ManagedCluster to a certian ManagedClusterSet, add a label with name `cluster.open-cluster-management.io/clusterset` on the ManagedCluster to refers to the ManagedClusterSet. User is not allow to add/remove this label on a ManagedCluster unless they have a RBAC rule to CREATE on a virtual subresource of managedclustersets/join. In order to update this label, user must have the permission on both the old and new ManagedClusterSet."
+          type: object
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Spec defines the attributes of the ManagedClusterSet
+              type: object
+            status:
+              description: Status represents the current status of the ManagedClusterSet
+              type: object
+              properties:
+                conditions:
+                  description: Conditions contains the different condition statuses for this ManagedClusterSet.
+                  type: array
+                  items:
+                    description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                    type: object
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    properties:
+                      lastTransitionTime:
+                        description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        type: string
+                        format: date-time
+                      message:
+                        description: message is a human readable message indicating details about the transition. This may be an empty string.
+                        type: string
+                        maxLength: 32768
+                      observedGeneration:
+                        description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                        type: integer
+                        format: int64
+                        minimum: 0
+                      reason:
+                        description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                        type: string
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        type: string
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                        type: string
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+    - additionalPrinterColumns:
+        - jsonPath: .status.conditions[?(@.type=="ClusterSetEmpty")].status
+          name: Empty
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      name: v1beta1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      "schema":
+        "openAPIV3Schema":
+          description: "ManagedClusterSet defines a group of ManagedClusters that user's workload can run on. A workload can be defined to deployed on a ManagedClusterSet, which mean:   1. The workload can run on any ManagedCluster in the ManagedClusterSet   2. The workload cannot run on any ManagedCluster outside the ManagedClusterSet   3. The service exposed by the workload can be shared in any ManagedCluster in the ManagedClusterSet \n In order to assign a ManagedCluster to a certian ManagedClusterSet, add a label with name `cluster.open-cluster-management.io/clusterset` on the ManagedCluster to refers to the ManagedClusterSet. User is not allow to add/remove this label on a ManagedCluster unless they have a RBAC rule to CREATE on a virtual subresource of managedclustersets/join. In order to update this label, user must have the permission on both the old and new ManagedClusterSet."
+          type: object
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Spec defines the attributes of the ManagedClusterSet
+              type: object
+              default:
+                clusterSelector:
+                  selectorType: LegacyClusterSetLabel
+              properties:
+                clusterSelector:
+                  description: ClusterSelector represents a selector of ManagedClusters
+                  type: object
+                  default:
+                    selectorType: LegacyClusterSetLabel
+                  properties:
+                    labelSelector:
+                      description: LabelSelector define the general labelSelector which clusterset will use to select target managedClusters
+                      type: object
+                      properties:
+                        matchExpressions:
+                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                          type: array
+                          items:
+                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                            type: object
+                            required:
+                              - key
+                              - operator
+                            properties:
+                              key:
+                                description: key is the label key that the selector applies to.
+                                type: string
+                              operator:
+                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                type: string
+                              values:
+                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                type: array
+                                items:
+                                  type: string
+                        matchLabels:
+                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                          type: object
+                          additionalProperties:
+                            type: string
+                    selectorType:
+                      description: SelectorType could only be "LegacyClusterSetLabel" or "LabelSelector" "LegacyClusterSetLabel" means to use label "cluster.open-cluster-management.io/clusterset:<ManagedClusterSet Name>"" to select target clusters. "LabelSelector" means use labelSelector to select target managedClusters
+                      type: string
+                      default: LegacyClusterSetLabel
+                      enum:
+                        - LegacyClusterSetLabel
+                        - LabelSelector
+            status:
+              description: Status represents the current status of the ManagedClusterSet
+              type: object
+              properties:
+                conditions:
+                  description: Conditions contains the different condition statuses for this ManagedClusterSet.
+                  type: array
+                  items:
+                    description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                    type: object
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    properties:
+                      lastTransitionTime:
+                        description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        type: string
+                        format: date-time
+                      message:
+                        description: message is a human readable message indicating details about the transition. This may be an empty string.
+                        type: string
+                        maxLength: 32768
+                      observedGeneration:
+                        description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                        type: integer
+                        format: int64
+                        minimum: 0
+                      reason:
+                        description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                        type: string
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        type: string
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                        type: string
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+    - additionalPrinterColumns:
+        - jsonPath: .status.conditions[?(@.type=="ClusterSetEmpty")].status
+          name: Empty
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      name: v1beta2
+      served: true
+      storage: false
+      subresources:
+        status: {}
+      "schema":
+        "openAPIV3Schema":
+          description: "ManagedClusterSet defines a group of ManagedClusters that user's workload can run on. A workload can be defined to deployed on a ManagedClusterSet, which mean:   1. The workload can run on any ManagedCluster in the ManagedClusterSet   2. The workload cannot run on any ManagedCluster outside the ManagedClusterSet   3. The service exposed by the workload can be shared in any ManagedCluster in the ManagedClusterSet \n In order to assign a ManagedCluster to a certian ManagedClusterSet, add a label with name `cluster.open-cluster-management.io/clusterset` on the ManagedCluster to refers to the ManagedClusterSet. User is not allow to add/remove this label on a ManagedCluster unless they have a RBAC rule to CREATE on a virtual subresource of managedclustersets/join. In order to update this label, user must have the permission on both the old and new ManagedClusterSet."
+          type: object
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Spec defines the attributes of the ManagedClusterSet
+              type: object
+              default:
+                clusterSelector:
+                  selectorType: ExclusiveClusterSetLabel
+              properties:
+                clusterSelector:
+                  description: ClusterSelector represents a selector of ManagedClusters
+                  type: object
+                  default:
+                    selectorType: ExclusiveClusterSetLabel
+                  properties:
+                    labelSelector:
+                      description: LabelSelector define the general labelSelector which clusterset will use to select target managedClusters
+                      type: object
+                      properties:
+                        matchExpressions:
+                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                          type: array
+                          items:
+                            description: A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
+                            type: object
+                            required:
+                              - key
+                              - operator
+                            properties:
+                              key:
+                                description: key is the label key that the selector applies to.
+                                type: string
+                              operator:
+                                description: operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.
+                                type: string
+                              values:
+                                description: values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.
+                                type: array
+                                items:
+                                  type: string
+                        matchLabels:
+                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                          type: object
+                          additionalProperties:
+                            type: string
+                    selectorType:
+                      description: SelectorType could only be "ExclusiveClusterSetLabel" or "LabelSelector" "ExclusiveClusterSetLabel" means to use label "cluster.open-cluster-management.io/clusterset:<ManagedClusterSet Name>"" to select target clusters. "LabelSelector" means use labelSelector to select target managedClusters
+                      type: string
+                      default: ExclusiveClusterSetLabel
+                      enum:
+                        - ExclusiveClusterSetLabel
+                        - LabelSelector
+            status:
+              description: Status represents the current status of the ManagedClusterSet
+              type: object
+              properties:
+                conditions:
+                  description: Conditions contains the different condition statuses for this ManagedClusterSet.
+                  type: array
+                  items:
+                    description: "Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"` \n     // other fields }"
+                    type: object
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    properties:
+                      lastTransitionTime:
+                        description: lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        type: string
+                        format: date-time
+                      message:
+                        description: message is a human readable message indicating details about the transition. This may be an empty string.
+                        type: string
+                        maxLength: 32768
+                      observedGeneration:
+                        description: observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.
+                        type: integer
+                        format: int64
+                        minimum: 0
+                      reason:
+                        description: reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty.
+                        type: string
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        type: string
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                        type: string
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+  conversion:
+      strategy: Webhook
+      webhook:
+        conversionReviewVersions: ["v1beta2","v1beta1"]
+        clientConfig:
+          service:
+            namespace: open-cluster-management-hub
+            name: cluster-manager-registration-webhook
+            path: /convert
+            port: 9443
+          caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR4akNDQXE2Z0F3SUJBZ0lJY2FtQXg0YjRjSUF3RFFZSktvWklodmNOQVFFTEJRQXdMVEVyTUNrR0ExVUUKQXd3aVkyeDFjM1JsY2kxdFlXNWhaMlZ5TFhkbFltaHZiMnRBTVRZMk1qUTFNelEwTlRBZUZ3MHlNakE1TURZdwpPRE0zTWpSYUZ3MHlNakV3TURZd09ETTNNalZhTUU4eFRUQkxCZ05WQkFNVFJHTnNkWE4wWlhJdGJXRnVZV2RsCmNpMXlaV2RwYzNSeVlYUnBiMjR0ZDJWaWFHOXZheTV2Y0dWdUxXTnNkWE4wWlhJdGJXRnVZV2RsYldWdWRDMW8KZFdJdWMzWmpNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXRwSEdpbERuaUpuRApwTUtHQXRTL00rVHYwbmRLanlwZnJMM2ExMHgvaDA5ay9nSXpIalFNS2dLTGMydmltOW1JdzBRejR3UTBVaTRxCmNkTUd4UHBzRW5mRGMwWEVDcG9TMTFkdU84SzU2c2t4ZmhtaWtTOVpLekxFR0haRGk4c1ZvV1FZZXJwMWhVV3kKQkRNMGZOZFJoM3hyaHc1c2hYVnhMTFBXc28vMnZkZlRvWTZKLzMxeDVYM3ZnT2NHSnJVOVdLQ3ROZUdmVXN3MApFVVhmWVhoeksyVzlxOVMvOHRIOWFIc1NOcXlvSGtsMGxDdUcyYk05S25Ybk1MTHFlSzIzY2VxeElmNEFBODIyCmFqa0ZJZ0x0cUNqUjIvTmxEQU5EWHIzRUVnQ3A0TnJqcDFvVzQ0M0drazVudFdZbHJ1YXVkYUd3NmF2V2lsN3oKcUVOMzRYcFBzd0lEQVFBQm80SEhNSUhFTUE0R0ExVWREd0VCL3dRRUF3SUZvREFUQmdOVkhTVUVEREFLQmdncgpCZ0VGQlFjREFUQU1CZ05WSFJNQkFmOEVBakFBTUIwR0ExVWREZ1FXQkJUR1J0OGVaRnk3enAwWTA2QTJCM2xMCnJXbEoyVEFmQmdOVkhTTUVHREFXZ0JUbWkwUEFoa0xNVSt6UDFGakRXMHlFb3lQeHlqQlBCZ05WSFJFRVNEQkcKZ2tSamJIVnpkR1Z5TFcxaGJtRm5aWEl0Y21WbmFYTjBjbUYwYVc5dUxYZGxZbWh2YjJzdWIzQmxiaTFqYkhWegpkR1Z5TFcxaGJtRm5aVzFsYm5RdGFIVmlMbk4yWXpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWMyVEdPUmdDCkQ2Y3JldmVtRnVROS9ERjdGR29vbFRFZ1BRbEJ6TE56Y2RBSFlEbjVFa1U5Q1BtdjY0VzN4RXRRZzZVYWVhTXAKTm5CQ29pVk9QVnpBVmZ5STJ5cjRNQnduTDVTQ1VMalNFd0FucFlaemtlM29KYlZwNVJybHIzTDMzbWhzT1dLdgpsdm9ZeTRJSCtzMGFjUXRUbU1TVDBqTW9tRVBFY2NacnJ1ZjFwWXZxWFZ2OVI1aWNhN2Z2akZ2QVRLeWc5RVNBCnpURlpwN0RDN3VNdkZaMkdrRGpJVzhJRjhDSmM1dmlFSUFNVUpDOUJ6VllsVE5Sd29KMUdIV1FodkNiWmVhaVUKZXJLZGhyTjNGV1pvUzNzdkxLMDZnNWJzcGhQRWE5MWErRGlmbE5FeFJqcGRJRDlyTjFzRzFWZ0IreHVRemdSawozbExyUTVySGl4MEJVZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURQekNDQWllZ0F3SUJBZ0lJQTJYM1ZMSy9La293RFFZSktvWklodmNOQVFFTEJRQXdMVEVyTUNrR0ExVUUKQXd3aVkyeDFjM1JsY2kxdFlXNWhaMlZ5TFhkbFltaHZiMnRBTVRZMk1qUTFNelEwTlRBZUZ3MHlNakE1TURZdwpPRE0zTWpSYUZ3MHlNekE1TURZd09ETTNNalZhTUMweEt6QXBCZ05WQkFNTUltTnNkWE4wWlhJdGJXRnVZV2RsCmNpMTNaV0pvYjI5clFERTJOakkwTlRNME5EVXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUsKQW9JQkFRRFl3NmtIeDFha3NDcUkva0I4dFU4V2tobHJVbHJyWmJhZDV1ZUs3ckVycis5c2FjZkpTdmVCWHd4VQo1SEN1cEYvNTdIb0JpRkhkeGQ4eFZNbzdiVnJuRWZXeHZKRWV1TFVCQkIxT2lyUmdYMUw0OUxDZExOTzJqSnNtCkMzcytyVUZTV0hQTjdLclhoWnpLZHVXMEhvb3VhbU50MGN1cVZwYzFZOXhKcnZmdXp6SUFwWVZTL05oREtnUk8KZm11OW9jOTZZVjNKV2t2Y1gvaXNLNDBMTWRkd3pyb2EyeEQ5WXpRbDNldVdrQkp2aGhIb055R0lpL2I3SWMvdwpTZFN6RHkzOUlrbHhLcWE1Nnc4TGs1QlE5SUhGRCtidnBLV2FUQk92RmFsemRvZWxFbnlpaGlZL1B6TGpscnBOCmxqa3JqcjdPa292OWEzbnlpVTlyNUNwMmRoN2RBZ01CQUFHall6QmhNQTRHQTFVZER3RUIvd1FFQXdJQ3BEQVAKQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVdCQlRtaTBQQWhrTE1VK3pQMUZqRFcweUVveVB4eWpBZgpCZ05WSFNNRUdEQVdnQlRtaTBQQWhrTE1VK3pQMUZqRFcweUVveVB4eWpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DCkFRRUFNNkhXQUY2MVB5cHZGYjFYcEN4Mld1U2hDcXJBSmNVRGF5Mm9vREJIdzBMTytCc2YwL3BaYUlKdWFZbFIKQlVOYzZJUFpvOG9xM1VTZThyQ1JWY3FqR05tbUhROHNnc2VDWStGcmF1eGJkWWdwQlNsWnhEemNLMTdKOFBlTwpveG9rOGdmUnFFSnZZbkMwTVZveVR1QjdtdzRKWXhmdzlPMDlyaURlZnAyQlA0UnE0YUkyWnZ0emoxUzN5Mk5VCmFHaHhlbjM2dW4xZ0k3SE1FV3dOeitqRlVLeGR2ZUE3bVZmMGp5Yzk0L2ZZUXpmRnpWUWlRVzhlM0prQkxwbFIKWFlkYWxzTzNCVzVJbFU4V3BVdmlYZ2FXemV5VllqWmR2aWZRZkJRM2pZbzNuOEZVVkxSOGVnMGpZSDBsUzNhUwpEQ2grVEdzKy9JZ0ljUitieUNLV0Q0Y05Kdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
