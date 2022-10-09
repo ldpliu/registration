@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cluster-manager-registration-webhook
+  managedFields:
+  name: cluster-manager-registration-webhook
+  namespace: open-cluster-management-hub
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: cluster-manager-registration-webhook
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: cluster-manager-registration-webhook
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - cluster-manager-registration-webhook
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+            weight: 70
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - cluster-manager-registration-webhook
+              topologyKey: kubernetes.io/hostname
+            weight: 30
+      containers:
+      - args:
+        - /registration
+        - webhook
+        - --secure-port=6443
+        - --tls-cert-file=/serving-cert/tls.crt
+        - --tls-private-key-file=/serving-cert/tls.key
+        - --feature-gates=DefaultClusterSet=true
+        - --feature-gates=APIPriorityAndFairness=false
+        image: quay.io/ldpliu/registration:96
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 6443
+            scheme: HTTPS
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: cluster-manager-registration-webhook-sa
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 6443
+            scheme: HTTPS
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 2m
+            memory: 16Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /serving-cert
+          name: webhook-secret
+          readOnly: true
+      - args:
+        - /registration
+        - webhook-server
+        - port=9443
+        image: quay.io/ldpliu/registration:96
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 20
+        name: cluster-manager-registration-conversion-webhook
+        ports:
+        - containerPort: 9443
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: webhook-secret
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: cluster-manager-registration-webhook-sa
+      serviceAccountName: cluster-manager-registration-webhook-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: webhook-secret
+        secret:
+          defaultMode: 420
+          secretName: registration-webhook-serving-cert
+status:
+  availableReplicas: 3
+  conditions:
+  - lastTransitionTime: "2022-09-26T09:19:48Z"
+    lastUpdateTime: "2022-09-26T09:19:48Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2022-09-27T03:53:58Z"
+    lastUpdateTime: "2022-09-27T03:53:58Z"
+    message: ReplicaSet "cluster-manager-registration-webhook-79f55989d8" has timed out progressing.
+    reason: ProgressDeadlineExceeded
+    status: "False"
+    type: Progressing
+  observedGeneration: 28
+  readyReplicas: 3
+  replicas: 4
+  unavailableReplicas: 1
+  updatedReplicas: 1

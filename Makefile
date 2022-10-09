@@ -12,8 +12,8 @@ include $(addprefix ./vendor/github.com/openshift/build-machinery-go/make/, \
 	lib/tmp.mk \
 )
 
-IMAGE_REGISTRY?=quay.io/open-cluster-management
-IMAGE_TAG?=latest
+IMAGE_REGISTRY?=quay.io/ldpliu
+IMAGE_TAG?=96
 IMAGE_NAME?=$(IMAGE_REGISTRY)/registration:$(IMAGE_TAG)
 KUBECONFIG ?= ./.kubeconfig
 KUBECTL?=kubectl

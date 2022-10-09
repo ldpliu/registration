@@ -1,18 +1,15 @@
 package v1beta2
 
-/*
-For imports, we'll need the controller-runtime
-[`conversion`](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/conversion?tab=doc)
-package, plus the API version for our hub type (v1beta1), and finally some of the
-standard packages.
-*/
 import (
 	"k8s.io/klog/v2"
 	"open-cluster-management.io/api/cluster/v1beta1"
+
+	internalv1beta1 "open-cluster-management.io/registration/pkg/internalapi/clusterset/v1beta1"
+
+	"open-cluster-management.io/api/cluster/v1beta2"
+
 	"sigs.k8s.io/controller-runtime/pkg/conversion"
 )
-
-// +kubebuilder:docs-gen:collapse=Imports
 
 /*
 Our "spoke" versions need to implement the
@@ -27,11 +24,11 @@ Most of the conversion is straightforward copying, except for converting our cha
 */
 // ConvertTo converts this ManagedClusterSet to the Hub(v1beta1) version.
 func (src *ManagedClusterSet) ConvertTo(dstRaw conversion.Hub) error {
-	dst := dstRaw.(*v1beta1.ManagedClusterSet)
-	klog.Info("Converting ManagedClusterset %v from v1beta2 to v1beta1", src.Name)
+	dst := dstRaw.(*internalv1beta1.ManagedClusterSet)
+	klog.Errorf("Converting ManagedClusterset %v from v1beta2 to v1beta1", src.Name)
 
 	dst.ObjectMeta = src.ObjectMeta
-	if len(src.Spec.ClusterSelector.SelectorType) == 0 || src.Spec.ClusterSelector.SelectorType == ExclusiveClusterSetLabel {
+	if len(src.Spec.ClusterSelector.SelectorType) == 0 || src.Spec.ClusterSelector.SelectorType == v1beta2.ExclusiveClusterSetLabel {
 		dst.Spec.ClusterSelector.SelectorType = v1beta1.SelectorType(v1beta1.LegacyClusterSetLabel)
 	} else {
 		dst.Spec.ClusterSelector.SelectorType = v1beta1.SelectorType(src.Spec.ClusterSelector.SelectorType)
@@ -48,16 +45,16 @@ Most of the conversion is straightforward copying, except for converting our cha
 
 // ConvertFrom converts from the Hub version (v1beta1) to this version.
 func (dst *ManagedClusterSet) ConvertFrom(srcRaw conversion.Hub) error {
-	src := srcRaw.(*v1beta1.ManagedClusterSet)
-	klog.Info("Converting ManagedClusterset %v from v1beta1 to v1beta2", dst.Name)
+	src := srcRaw.(*internalv1beta1.ManagedClusterSet)
+	klog.Errorf("Converting ManagedClusterset %v from v1beta1 to v1beta2", src.Name)
 
 	dst.ObjectMeta = src.ObjectMeta
 	if len(src.Spec.ClusterSelector.SelectorType) == 0 || src.Spec.ClusterSelector.SelectorType == v1beta1.LegacyClusterSetLabel {
-		dst.Spec.ClusterSelector.SelectorType = ExclusiveClusterSetLabel
+		dst.Spec.ClusterSelector.SelectorType = v1beta2.ExclusiveClusterSetLabel
 	} else {
-		dst.Spec.ClusterSelector.SelectorType = SelectorType(src.Spec.ClusterSelector.SelectorType)
+		dst.Spec.ClusterSelector.SelectorType = v1beta2.SelectorType(src.Spec.ClusterSelector.SelectorType)
 		dst.Spec.ClusterSelector.LabelSelector = src.Spec.ClusterSelector.LabelSelector
 	}
-	dst.Status = ManagedClusterSetStatus(src.Status)
+	dst.Status = v1beta2.ManagedClusterSetStatus(src.Status)
 	return nil
 }

@@ -7,4 +7,4 @@ method called `Hub()` to serve as a
 */
 
 // Hub marks this type as a conversion hub.
-func (*ManagedClusterSet) Hub() {}
+func (r *ManagedClusterSet) Hub() {}

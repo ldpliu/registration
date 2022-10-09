@@ -1,14 +1,11 @@
-package hub
+package conversion
 
 import (
 	"github.com/spf13/cobra"
-
-	"open-cluster-management.io/registration/pkg/webhookserver"
 )
 
 func NewWebhook() *cobra.Command {
-	ops := webhookserver.NewOptions()
-
+	ops := NewOptions()
 	cmd := &cobra.Command{
 		Use:   "webhook-server",
 		Short: "Start the webhook server",
